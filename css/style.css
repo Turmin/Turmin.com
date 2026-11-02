@@ -89,3 +89,44 @@ h1, p { margin: 0; }
   letter-spacing: .01em;
   opacity: .6;
 }
+
+/* Error pages */
+.error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.lockup-sm {
+  font-size: 1.5rem;
+  color: inherit;
+  text-decoration: none;
+  margin-bottom: 2.5rem;
+}
+.error-code {
+  font-family: "Sora", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: clamp(4.5rem, 22vw, 9rem);
+  line-height: 1;
+  letter-spacing: -.04em;
+  color: var(--mark);
+}
+.error-title {
+  margin-top: .75rem;
+  font-family: "Sora", system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 1.25rem;
+}
+.error-text {
+  margin-top: .4rem;
+  max-width: 32ch;
+  opacity: .75;
+}
+.error-link {
+  margin-top: 2rem;
+  color: var(--fg);
+  font-weight: 600;
+  text-underline-offset: .25em;
+}
+.error-link:hover { color: var(--mark); }
+:focus-visible { outline: 2px solid var(--mark); outline-offset: 4px; border-radius: 4px; }
