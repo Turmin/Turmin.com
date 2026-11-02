@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Turmin">
+  <path fill="none" stroke="#FFBA4C" stroke-width="6" stroke-linecap="round" d="M47.5 11.2A26 26 0 1 1 32 6"/>
+  <circle cx="44" cy="8.6" r="4.2" fill="#3DDC97"/>
+  <path fill="#FFBA4C" d="M18 20H46V28H36V46H28V28H18Z"/>
+</svg>
