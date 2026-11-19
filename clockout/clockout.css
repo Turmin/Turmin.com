@@ -1,0 +1,115 @@
+/* Clock Out — turmin.com/clockout/ (page styles; brand basics come from /css/style.css) */
+.tool {
+  max-width: 34rem;
+  margin: 0 auto;
+  padding: calc(2rem + env(safe-area-inset-top)) 1rem calc(2rem + env(safe-area-inset-bottom));
+}
+.tool-head { text-align: center; margin-bottom: 2rem; }
+.tool-head .lockup-sm { display: inline-flex; margin-bottom: 1.75rem; }
+.tool-title {
+  font-family: "Sora", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: clamp(2.25rem, 10vw, 3.25rem);
+  letter-spacing: -.03em;
+  line-height: 1;
+  color: var(--mark);
+}
+.tool-intro { margin-top: .6rem; opacity: .75; }
+
+.panel {
+  background: rgba(255, 243, 220, .05);
+  border: 1px solid rgba(255, 243, 220, .1);
+  border-radius: 1.25rem;
+  padding: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+.panel-title {
+  margin: 0 0 1rem;
+  font-family: "Sora", system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 1.125rem;
+}
+.calc {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .9rem .75rem;
+  scroll-margin-top: 1rem;
+}
+.field { display: flex; flex-direction: column; gap: .35rem; min-width: 0; }
+.field label { font-size: .8125rem; font-weight: 600; letter-spacing: .01em; opacity: .7; }
+.hint { font-size: .75rem; opacity: .55; }
+.label-row { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+
+.calc input {
+  width: 100%;
+  font: inherit;
+  font-size: 1.125rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--fg);
+  background: rgba(0, 0, 0, .25);
+  border: 1px solid rgba(255, 243, 220, .15);
+  border-radius: .7rem;
+  padding: .6rem .75rem;
+  color-scheme: dark;
+}
+.calc input::placeholder { color: var(--fg); opacity: .35; }
+.calc input:focus { outline: none; border-color: var(--mark); }
+
+.chip, .go {
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: .7rem;
+}
+.chip {
+  flex: none;
+  padding: .1rem .6rem;
+  font-size: .75rem;
+  color: var(--mark);
+  background: transparent;
+  border: 1px solid rgba(255, 186, 76, .45);
+}
+.chip:hover { background: rgba(255, 186, 76, .12); }
+.chip-wide { grid-column: 1 / -1; padding: .6rem .8rem; font-size: .875rem; }
+.go {
+  grid-column: 1 / -1;
+  padding: .7rem 1rem;
+  color: var(--bg);
+  background: var(--mark);
+  border: 0;
+}
+.go:hover { filter: brightness(1.08); }
+.js .go { display: none; } /* live with JS */
+
+.result {
+  grid-column: 1 / -1;
+  display: block;
+  text-align: center;
+  padding: 1rem .5rem .25rem;
+  border-top: 1px solid rgba(255, 243, 220, .1);
+}
+.result p { margin: 0; }
+.result-label { font-size: .8125rem; font-weight: 600; opacity: .7; }
+.result-big {
+  font-family: "Sora", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: clamp(3rem, 16vw, 4.5rem);
+  line-height: 1.1;
+  letter-spacing: -.03em;
+  font-variant-numeric: tabular-nums;
+  color: var(--mark);
+}
+.result-big small { font-size: .3em; letter-spacing: 0; opacity: .8; }
+.result-empty { opacity: .25; }
+.result-sub { margin-top: .25rem; opacity: .8; }
+.countdown { display: inline-block; margin-top: .4rem; color: #3DDC97; font-weight: 600; }
+.result-error { color: #FF8A7A; font-weight: 600; }
+
+.tool-foot {
+  margin-top: 2rem;
+  text-align: center;
+  font-size: .8125rem;
+  font-weight: 500;
+  letter-spacing: .01em;
+  opacity: .6;
+}

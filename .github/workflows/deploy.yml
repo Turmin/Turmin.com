@@ -38,6 +38,7 @@ jobs:
             --exclude='*.txt' \
             --include='*/' \
             --include='*.php' \
+            --include='*.css' \
             --include='*.html' \
             --include='*.ico' \
             --include='*.svg' \
