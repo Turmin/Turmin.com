@@ -23,9 +23,11 @@ jobs:
 
           # rsync uses the first matching rule, so the specific includes
           # (robots.txt, font licences) come before the generic excludes.
+          # branding/ is for social media and press, not for the website.
           rsync -av \
             --include='robots.txt' \
             --include='fonts/***' \
+            --exclude='/branding/' \
             --exclude='.env' \
             --exclude='*.sql' \
             --exclude='*.zip' \
