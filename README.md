@@ -7,6 +7,7 @@ business card. Plain HTML and CSS, no JavaScript, no build step.
 
 ```
 index.html          the page
+stempelklok/        werktijden-calculator (PHP): hoe laat mag ik naar huis?
 css/style.css       styles (mobile first)
 img/                logo, social preview image, touch icon
 fonts/              self-hosted variable fonts (no Google Fonts requests)
@@ -19,7 +20,8 @@ favicon.svg / .ico  favicons
 python3 -m http.server 8000
 ```
 
-Then open http://localhost:8000.
+Then open http://localhost:8000. For the PHP pages (`stempelklok/`) use
+`php -S localhost:8000` instead.
 
 ## Deploy
 
