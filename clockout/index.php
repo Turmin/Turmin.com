@@ -90,7 +90,7 @@ function e($s)
 
 function q($k, $default = '')
 {
-    if (!isset($_GET[$k]) || !is_string($_GET[$k]) || trim($_GET[$k]) === '') {
+    if (!isset($_GET[$k]) || !is_string($_GET[$k])) {
         return $default;
     }
     return (string) substr($_GET[$k], 0, 12);
@@ -111,7 +111,8 @@ $in = [
 
 $home = null;
 $homeError = null;
-if ($in['start'] !== '') {
+$homeAsk = $in['start'] === '' ? 'Enter your start time' : (trim($in['workday']) === '' ? 'Enter your workday' : null);
+if ($homeAsk === null) {
     $start    = parse_time($in['start']);
     $workday  = parse_duration($in['workday']);
     $break    = parse_duration($in['break']);
@@ -130,7 +131,8 @@ if ($in['start'] !== '') {
 
 $worked = null;
 $workedError = null;
-if ($in['s2'] !== '' || $in['e2'] !== '') {
+$workedAsk = ($in['s2'] === '' && $in['e2'] === '') ? 'Enter start and end' : (trim($in['w2']) === '' ? 'Enter your workday' : null);
+if ($workedAsk === null) {
     $s2 = parse_time($in['s2']);
     $e2 = parse_time($in['e2']);
     $b2 = parse_duration($in['b2']);
@@ -221,11 +223,11 @@ function diff_text($v)
         </div>
         <div class="field">
           <label for="workday">Workday</label>
-          <input id="workday" name="workday" inputmode="text" autocomplete="off" value="<?= e($in['workday']) ?>" data-remember>
+          <input id="workday" name="workday" inputmode="text" autocomplete="off" placeholder="e.g. 8:00" value="<?= e($in['workday']) ?>" data-remember>
         </div>
         <div class="field">
           <label for="break">Break</label>
-          <input id="break" name="break" inputmode="text" autocomplete="off" value="<?= e($in['break']) ?>" data-remember>
+          <input id="break" name="break" inputmode="text" autocomplete="off" placeholder="e.g. 0:30" value="<?= e($in['break']) ?>" data-remember>
         </div>
         <button class="go" type="submit">Calculate</button>
 
@@ -237,7 +239,7 @@ function diff_text($v)
           <p class="result-big"><?= fmt_time($home['leave']) ?></p>
           <p class="result-sub"><?= e(overtime_text($home['overtime'])) ?> · normally done at <?= fmt_time($home['normal']) ?></p>
 <?php else: ?>
-          <p class="result-label">Enter your start time</p>
+          <p class="result-label"><?= e($homeAsk) ?></p>
           <p class="result-big result-empty">00:00</p>
 <?php endif; ?>
         </output>
@@ -257,15 +259,15 @@ function diff_text($v)
             <label for="e2">Stopped at</label>
             <button type="button" class="chip" data-now="e2">Now</button>
           </div>
-          <input id="e2" name="e2" inputmode="decimal" autocomplete="off" placeholder="e.g. 8:43" data-time value="<?= e($in['e2']) ?>">
+          <input id="e2" name="e2" inputmode="decimal" autocomplete="off" placeholder="e.g. 17:20" data-time value="<?= e($in['e2']) ?>">
         </div>
         <div class="field">
           <label for="w2">Workday</label>
-          <input id="w2" name="w2" inputmode="text" autocomplete="off" value="<?= e($in['w2']) ?>" data-remember="workday">
+          <input id="w2" name="w2" inputmode="text" autocomplete="off" placeholder="e.g. 8:00" value="<?= e($in['w2']) ?>" data-remember="workday">
         </div>
         <div class="field">
           <label for="b2">Break</label>
-          <input id="b2" name="b2" inputmode="text" autocomplete="off" value="<?= e($in['b2']) ?>" data-remember="break">
+          <input id="b2" name="b2" inputmode="text" autocomplete="off" placeholder="e.g. 0:30" value="<?= e($in['b2']) ?>" data-remember="break">
         </div>
         <button class="go" type="submit">Calculate</button>
 
@@ -277,7 +279,7 @@ function diff_text($v)
           <p class="result-big"><?= fmt_duration($worked['total']) ?></p>
           <p class="result-sub"><?= e(diff_text($worked['diff'])) ?></p>
 <?php else: ?>
-          <p class="result-label">Enter start and end</p>
+          <p class="result-label"><?= e($workedAsk) ?></p>
           <p class="result-big result-empty">0:00</p>
 <?php endif; ?>
         </output>
@@ -353,6 +355,7 @@ function diff_text($v)
     function calcHome() {
       var out = $('out-home');
       if ($('start').value === '') { render(out, 'Enter your start time', '00:00', '', true); return; }
+      if ($('workday').value.trim() === '') { render(out, 'Enter your workday', '00:00', '', true); return; }
       var start = parseTime($('start').value), work = parseDuration($('workday').value),
           brk = parseDuration($('break').value), ot = parseDuration($('overtime').value);
       if (start === null) return typing('start')
@@ -382,6 +385,7 @@ function diff_text($v)
       var out = $('out-worked'), btn = $('use-overtime');
       btn.hidden = true; lastDiff = null;
       if ($('s2').value === '' && $('e2').value === '') { render(out, 'Enter start and end', '0:00', '', true); return; }
+      if ($('w2').value.trim() === '') { render(out, 'Enter your workday', '0:00', '', true); return; }
       var s = parseTime($('s2').value), e = parseTime($('e2').value),
           b = parseDuration($('b2').value), w = parseDuration($('w2').value);
       if (s === null || e === null) return typing('s2') || typing('e2')
