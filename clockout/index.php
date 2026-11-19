@@ -13,11 +13,11 @@ date_default_timezone_set('Europe/Amsterdam');
 
 const DAY = 1440;
 
-/** "8:43", "08.43", "843" -> minutes since midnight, or null. */
+/** "8:43", "08.43", "8,43", "843" -> minutes since midnight, or null. */
 function parse_time($s)
 {
     $s = trim((string) $s);
-    if (preg_match('/^(\d{1,2})[:.](\d{2})$/', $s, $m) || preg_match('/^(\d{1,2})(\d{2})$/', $s, $m)) {
+    if (preg_match('/^(\d{1,2})[:.,](\d{2})$/', $s, $m) || preg_match('/^(\d{1,2})(\d{2})$/', $s, $m)) {
         $h = (int) $m[1];
         $i = (int) $m[2];
         if ($h < 24 && $i < 60) {
@@ -27,21 +27,27 @@ function parse_time($s)
     return null;
 }
 
-/** "37", "0:37", "1:05", "-15", "+1.30" -> minutes (may be negative), or null. */
+/**
+ * Duration -> minutes (may be negative), or null. Same rule as times:
+ *   1-2 digits = minutes        "37" -> 37, "90" -> 90
+ *   3-4 digits = hours+minutes  "800" -> 8:00, "105" -> 1:05, "030" -> 0:30
+ *   h:mm (or h.mm / h,mm)       "1:05", "8.00", "0,30"
+ *   a leading minus             "-15", "-1:05"
+ */
 function parse_duration($s)
 {
     $s = str_replace([' ', '−'], ['', '-'], trim((string) $s));
     if ($s === '') {
         return 0;
     }
-    if (!preg_match('/^([+-])?(?:(\d{1,2})[:.](\d{2})|(\d{1,4}))$/', $s, $m)) {
+    if (preg_match('/^([+-]?)(\d{1,2})$/', $s, $m)) {
+        $min = (int) $m[2];
+    } elseif (preg_match('/^([+-]?)(\d{1,2})[:.,]?(\d{2})$/', $s, $m) && (int) $m[3] < 60) {
+        $min = (int) $m[2] * 60 + (int) $m[3];
+    } else {
         return null;
     }
-    $min = isset($m[4]) && $m[4] !== '' ? (int) $m[4] : (int) $m[2] * 60 + (int) $m[3];
-    if (isset($m[3]) && $m[3] !== '' && (int) $m[3] >= 60) {
-        return null;
-    }
-    return ($m[1] ?? '') === '-' ? -$min : $min;
+    return $m[1] === '-' ? -$min : $min;
 }
 
 /** Minutes -> "16:36" (with a day marker when it crosses midnight). */
@@ -120,7 +126,7 @@ if ($homeAsk === null) {
     if ($start === null) {
         $homeError = "That start time doesn't make sense. Try something like 8:43.";
     } elseif ($workday === null || $break === null || $overtime === null) {
-        $homeError = 'Use minutes (37) or hours:minutes (1:05). A minus sign (-15) works too.';
+        $homeError = 'Use minutes (37) or hours and minutes (1:05 or 105). A minus sign (-15) works too.';
     } else {
         $normal = $start + $workday + $break;
         $home = ['normal' => $normal, 'leave' => $normal - $overtime, 'overtime' => $overtime];
@@ -140,7 +146,7 @@ if ($workedAsk === null) {
     if ($s2 === null || $e2 === null) {
         $workedError = 'Enter both a start and an end time, like 8:43 and 17:20.';
     } elseif ($b2 === null || $w2 === null) {
-        $workedError = 'Use minutes (30) or hours:minutes (0:30).';
+        $workedError = 'Use minutes (30) or hours and minutes (8:00 or 800).';
     } else {
         $span = $e2 - $s2;
         if ($span < 0) {
@@ -218,16 +224,16 @@ function diff_text($v)
         </div>
         <div class="field">
           <label for="overtime">Overtime</label>
-          <input id="overtime" name="overtime" inputmode="text" autocomplete="off" placeholder="e.g. 37 or 1:05" value="<?= e($in['overtime']) ?>">
-          <span class="hint">Minutes or h:mm. Hours short? Add a minus: −15.</span>
+          <input id="overtime" name="overtime" inputmode="text" data-duration autocomplete="off" placeholder="e.g. 37 or 1:05" value="<?= e($in['overtime']) ?>">
+          <span class="hint">37 = minutes, 105 or 1:05 = 1 h 5 min. Hours short? Add a minus: −15.</span>
         </div>
         <div class="field">
           <label for="workday">Workday</label>
-          <input id="workday" name="workday" inputmode="text" autocomplete="off" placeholder="e.g. 8:00" value="<?= e($in['workday']) ?>" data-remember>
+          <input id="workday" name="workday" inputmode="decimal" data-duration autocomplete="off" placeholder="e.g. 8:00" value="<?= e($in['workday']) ?>" data-remember>
         </div>
         <div class="field">
           <label for="break">Break</label>
-          <input id="break" name="break" inputmode="text" autocomplete="off" placeholder="e.g. 0:30" value="<?= e($in['break']) ?>" data-remember>
+          <input id="break" name="break" inputmode="decimal" data-duration autocomplete="off" placeholder="e.g. 0:30" value="<?= e($in['break']) ?>" data-remember>
         </div>
         <button class="go" type="submit">Calculate</button>
 
@@ -263,11 +269,11 @@ function diff_text($v)
         </div>
         <div class="field">
           <label for="w2">Workday</label>
-          <input id="w2" name="w2" inputmode="text" autocomplete="off" placeholder="e.g. 8:00" value="<?= e($in['w2']) ?>" data-remember="workday">
+          <input id="w2" name="w2" inputmode="decimal" data-duration autocomplete="off" placeholder="e.g. 8:00" value="<?= e($in['w2']) ?>" data-remember="workday">
         </div>
         <div class="field">
           <label for="b2">Break</label>
-          <input id="b2" name="b2" inputmode="text" autocomplete="off" placeholder="e.g. 0:30" value="<?= e($in['b2']) ?>" data-remember="break">
+          <input id="b2" name="b2" inputmode="decimal" data-duration autocomplete="off" placeholder="e.g. 0:30" value="<?= e($in['b2']) ?>" data-remember="break">
         </div>
         <button class="go" type="submit">Calculate</button>
 
@@ -302,7 +308,7 @@ function diff_text($v)
 
     function parseTime(s) {
       s = String(s || '').trim();
-      var m = s.match(/^(\d{1,2})[:.](\d{2})$/) || s.match(/^(\d{1,2})(\d{2})$/);
+      var m = s.match(/^(\d{1,2})[:.,](\d{2})$/) || s.match(/^(\d{1,2})(\d{2})$/);
       if (!m) return null;
       var h = +m[1], i = +m[2];
       return h < 24 && i < 60 ? h * 60 + i : null;
@@ -310,10 +316,11 @@ function diff_text($v)
     function parseDuration(s) {
       s = String(s || '').replace(/\s+/g, '').replace('−', '-');
       if (s === '') return 0;
-      var m = s.match(/^([+-])?(?:(\d{1,2})[:.](\d{2})|(\d{1,4}))$/);
-      if (!m) return null;
-      if (m[3] !== undefined && +m[3] >= 60) return null;
-      var min = m[4] !== undefined ? +m[4] : +m[2] * 60 + +m[3];
+      // Same rule as PHP: 1-2 digits = minutes, 3-4 digits or h:mm = hours and minutes.
+      var m = s.match(/^([+-]?)(\d{1,2})$/), min;
+      if (m) min = +m[2];
+      else if ((m = s.match(/^([+-]?)(\d{1,2})[:.,]?(\d{2})$/)) && +m[3] < 60) min = +m[2] * 60 + +m[3];
+      else return null;
       return m[1] === '-' ? -min : min;
     }
     function pad(n) { return (n < 10 ? '0' : '') + n; }
@@ -362,7 +369,7 @@ function diff_text($v)
         ? render(out, 'Enter your start time', '00:00', '', true)
         : error(out, "That start time doesn't make sense. Try something like 8:43.");
       if (work === null || brk === null || ot === null)
-        return error(out, 'Use minutes (37) or hours:minutes (1:05). A minus sign (-15) works too.');
+        return error(out, 'Use minutes (37) or hours and minutes (1:05 or 105). A minus sign (-15) works too.');
 
       var normal = start + work + brk, leave = normal - ot;
       var sub = ot > 0 ? human(ot) + ' early' : ot < 0 ? human(ot) + ' late' : 'Right on time';
@@ -391,7 +398,7 @@ function diff_text($v)
       if (s === null || e === null) return typing('s2') || typing('e2')
         ? render(out, 'Enter start and end', '0:00', '', true)
         : error(out, 'Enter both a start and an end time, like 8:43 and 17:20.');
-      if (b === null || w === null) return error(out, 'Use minutes (30) or hours:minutes (0:30).');
+      if (b === null || w === null) return error(out, 'Use minutes (30) or hours and minutes (8:00 or 800).');
 
       var span = e - s; if (span < 0) span += DAY;
       var total = span - b, v = total - w;
@@ -422,6 +429,16 @@ function diff_text($v)
       el.addEventListener('blur', function () {
         var t = parseTime(el.value);
         if (t !== null) el.value = pad(Math.floor(t / 60)) + ':' + pad(t % 60);
+        el.closest('form').id === 'form-home' ? calcHome() : calcWorked();
+      });
+    });
+
+    // Tidy durations on blur too, so you see how it was read: "800" becomes "8:00", "90" becomes "1:30".
+    document.querySelectorAll('[data-duration]').forEach(function (el) {
+      el.addEventListener('blur', function () {
+        if (el.value.trim() === '') return;
+        var d = parseDuration(el.value);
+        if (d !== null) el.value = (d < 0 ? '-' : '') + fmtDuration(d);
         el.closest('form').id === 'form-home' ? calcHome() : calcWorked();
       });
     });
