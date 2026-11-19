@@ -230,7 +230,7 @@ function diff_text($v)
           <p class="result-sub"><?= e(overtime_text($home['overtime'])) ?> · normally done at <?= fmt_time($home['normal']) ?></p>
 <?php else: ?>
           <p class="result-label">Enter your start time</p>
-          <p class="result-big result-empty">--:--</p>
+          <p class="result-big result-empty">00:00</p>
 <?php endif; ?>
         </output>
       </form>
@@ -270,7 +270,7 @@ function diff_text($v)
           <p class="result-sub"><?= e(diff_text($worked['diff'])) ?></p>
 <?php else: ?>
           <p class="result-label">Enter start and end</p>
-          <p class="result-big result-empty">-:--</p>
+          <p class="result-big result-empty">0:00</p>
 <?php endif; ?>
         </output>
         <button type="button" class="chip chip-wide" id="use-overtime" hidden>Use as overtime above ↑</button>
@@ -342,7 +342,7 @@ function diff_text($v)
     // 1. When can I leave?
     function calcHome() {
       var out = $('out-home');
-      if ($('start').value === '') { render(out, 'Enter your start time', '--:--', '', true); return; }
+      if ($('start').value === '') { render(out, 'Enter your start time', '00:00', '', true); return; }
       var start = parseTime($('start').value), work = parseDuration($('workday').value),
           brk = parseDuration($('break').value), ot = parseDuration($('overtime').value);
       if (start === null) return error(out, "That start time doesn't make sense. Try something like 8:43.");
@@ -369,7 +369,7 @@ function diff_text($v)
     function calcWorked() {
       var out = $('out-worked'), btn = $('use-overtime');
       btn.hidden = true; lastDiff = null;
-      if ($('s2').value === '' && $('e2').value === '') { render(out, 'Enter start and end', '-:--', '', true); return; }
+      if ($('s2').value === '' && $('e2').value === '') { render(out, 'Enter start and end', '0:00', '', true); return; }
       var s = parseTime($('s2').value), e = parseTime($('e2').value),
           b = parseDuration($('b2').value), w = parseDuration($('w2').value);
       if (s === null || e === null) return error(out, 'Enter both a start and an end time, like 8:43 and 17:20.');
