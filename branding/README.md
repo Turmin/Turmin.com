@@ -21,8 +21,14 @@ look the same everywhere, even without the fonts installed.
 | Link preview (Open Graph), slides | `banner/turmin-social-preview-1200x630.png` | 1200×630 |
 | Wallpaper, video, Discord invite background | `banner/turmin-wallpaper-1920x1080.png` | 1920×1080 |
 
-The avatar keeps the mark within the middle 58%, so it survives the circle
-crop that X, Telegram, WhatsApp and Discord apply.
+The avatar fills 78% of the square, so it survives the circle crop that X,
+Telegram, WhatsApp and Discord apply. The green dot, the mark's outermost
+point, stays well inside the circle.
+
+Headers and profile banners sit next to the avatar, which already shows the
+logo, so they don't repeat it. The text is top-left, clear of the avatar in
+the bottom-left corner, with a large crop of the ring on the right. The link
+preview and the wallpaper are used on their own, so those carry the full logo.
 
 ## Logos
 
