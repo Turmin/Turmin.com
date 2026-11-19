@@ -26,9 +26,14 @@ Telegram, WhatsApp and Discord apply. The green dot, the mark's outermost
 point, stays well inside the circle.
 
 Headers and profile banners sit next to the avatar, which already shows the
-logo, so they don't repeat it: just turmin.com top-left, clear of the avatar in
-the bottom-left corner, with a large crop of the ring on the right. The link
-preview and the wallpaper are used on their own, so those carry the full logo.
+logo, so they don't repeat it. They use the mark's ring "smoothed out": a thin
+orange line ending in the green dot, at the height where the platform puts the
+profile picture, so the line runs behind it. Two faint rings in the background,
+and on X and LinkedIn a spaced TURMIN on the right. The Discord banners leave
+the name out, because Discord puts it on top of them.
+
+The link preview and the wallpaper are used on their own, so those carry the
+full logo.
 
 ## Logos
 
