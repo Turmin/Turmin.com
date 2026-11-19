@@ -178,7 +178,7 @@ function diff_text($v)
   <link rel="icon" href="/favicon.ico" sizes="32x32">
   <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
   <link rel="preload" href="/fonts/sora-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="/clockout/css/style.css">
+  <link rel="stylesheet" href="/clockout/css/style.css?v=<?= (int) @filemtime(__DIR__ . '/css/style.css') ?>">
 </head>
 <body>
   <main class="tool">
@@ -204,7 +204,7 @@ function diff_text($v)
             <label for="start">Started at</label>
             <button type="button" class="chip" data-now="start">Now</button>
           </div>
-          <input id="start" name="start" type="time" required value="<?= e($in['start']) ?>">
+          <input id="start" name="start" inputmode="decimal" autocomplete="off" placeholder="e.g. 8:43" data-time value="<?= e($in['start']) ?>">
         </div>
         <div class="field">
           <label for="overtime">Overtime</label>
@@ -242,14 +242,14 @@ function diff_text($v)
       <form class="calc" id="form-worked" method="get" action="#form-worked">
         <div class="field">
           <label for="s2">Started at</label>
-          <input id="s2" name="s2" type="time" value="<?= e($in['s2']) ?>">
+          <input id="s2" name="s2" inputmode="decimal" autocomplete="off" placeholder="e.g. 8:43" data-time value="<?= e($in['s2']) ?>">
         </div>
         <div class="field">
           <div class="label-row">
             <label for="e2">Stopped at</label>
             <button type="button" class="chip" data-now="e2">Now</button>
           </div>
-          <input id="e2" name="e2" type="time" value="<?= e($in['e2']) ?>">
+          <input id="e2" name="e2" inputmode="decimal" autocomplete="off" placeholder="e.g. 8:43" data-time value="<?= e($in['e2']) ?>">
         </div>
         <div class="field">
           <label for="w2">Workday</label>
@@ -328,6 +328,8 @@ function diff_text($v)
         '<p class="result-big' + (empty ? ' result-empty' : '') + '">' + big + '</p>' +
         (sub ? '<p class="result-sub">' + sub + '</p>' : '');
     }
+    // A half-typed time ("8") isn't an error yet while you're still in the field.
+    function typing(id) { return document.activeElement === $(id); }
     function error(out, msg) { out.innerHTML = '<p class="result-error">' + esc(msg) + '</p>'; }
 
     // Remember workday and break per browser (unless the URL set them).
@@ -345,7 +347,9 @@ function diff_text($v)
       if ($('start').value === '') { render(out, 'Enter your start time', '00:00', '', true); return; }
       var start = parseTime($('start').value), work = parseDuration($('workday').value),
           brk = parseDuration($('break').value), ot = parseDuration($('overtime').value);
-      if (start === null) return error(out, "That start time doesn't make sense. Try something like 8:43.");
+      if (start === null) return typing('start')
+        ? render(out, 'Enter your start time', '00:00', '', true)
+        : error(out, "That start time doesn't make sense. Try something like 8:43.");
       if (work === null || brk === null || ot === null)
         return error(out, 'Use minutes (37) or hours:minutes (1:05). A minus sign (-15) works too.');
 
@@ -372,7 +376,9 @@ function diff_text($v)
       if ($('s2').value === '' && $('e2').value === '') { render(out, 'Enter start and end', '0:00', '', true); return; }
       var s = parseTime($('s2').value), e = parseTime($('e2').value),
           b = parseDuration($('b2').value), w = parseDuration($('w2').value);
-      if (s === null || e === null) return error(out, 'Enter both a start and an end time, like 8:43 and 17:20.');
+      if (s === null || e === null) return typing('s2') || typing('e2')
+        ? render(out, 'Enter start and end', '0:00', '', true)
+        : error(out, 'Enter both a start and an end time, like 8:43 and 17:20.');
       if (b === null || w === null) return error(out, 'Use minutes (30) or hours:minutes (0:30).');
 
       var span = e - s; if (span < 0) span += DAY;
@@ -396,6 +402,15 @@ function diff_text($v)
         var n = nowMin(), el = $(btn.getAttribute('data-now'));
         el.value = pad(Math.floor(n / 60)) + ':' + pad(n % 60);
         el.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+    });
+
+    // Tidy typed times on blur: "843" or "8.43" becomes "08:43".
+    document.querySelectorAll('[data-time]').forEach(function (el) {
+      el.addEventListener('blur', function () {
+        var t = parseTime(el.value);
+        if (t !== null) el.value = pad(Math.floor(t / 60)) + ':' + pad(t % 60);
+        el.closest('form').id === 'form-home' ? calcHome() : calcWorked();
       });
     });
 
