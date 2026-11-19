@@ -26,7 +26,7 @@ Telegram, WhatsApp and Discord apply. The green dot, the mark's outermost
 point, stays well inside the circle.
 
 Headers and profile banners sit next to the avatar, which already shows the
-logo, so they don't repeat it. The text is top-left, clear of the avatar in
+logo, so they don't repeat it: just turmin.com top-left, clear of the avatar in
 the bottom-left corner, with a large crop of the ring on the right. The link
 preview and the wallpaper are used on their own, so those carry the full logo.
 
