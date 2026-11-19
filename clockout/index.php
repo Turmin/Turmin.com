@@ -75,6 +75,12 @@ function human_duration($min)
     return $h ? "$h h" : "$m min";
 }
 
+/** URL of a file in this folder, with ?v=<mtime> so browsers and iOS pick up changes. */
+function asset($path)
+{
+    return '/clockout/' . $path . '?v=' . (int) @filemtime(__DIR__ . '/' . $path);
+}
+
 function e($s)
 {
     return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8');
@@ -174,11 +180,13 @@ function diff_text($v)
   <meta name="description" content="Quickly work out when you can go home, overtime and breaks included.">
   <meta name="theme-color" content="#1E1A44">
   <link rel="canonical" href="https://turmin.com/clockout/">
-  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-  <link rel="icon" href="/favicon.ico" sizes="32x32">
-  <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-title" content="Clock Out">
+  <meta name="application-name" content="Clock Out">
+  <link rel="icon" href="<?= asset('img/favicon.svg') ?>" type="image/svg+xml">
+  <link rel="icon" href="<?= asset('img/icon-512.png') ?>" type="image/png" sizes="512x512">
+  <link rel="apple-touch-icon" sizes="180x180" href="<?= asset('img/apple-touch-icon.png') ?>">
   <link rel="preload" href="/fonts/sora-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="/clockout/css/style.css?v=<?= (int) @filemtime(__DIR__ . '/css/style.css') ?>">
+  <link rel="stylesheet" href="<?= asset('css/style.css') ?>">
 </head>
 <body>
   <main class="tool">
