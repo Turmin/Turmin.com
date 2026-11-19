@@ -5,16 +5,16 @@
  * Working-hours calculator: when can I go home, and how long did I work?
  * Works without JavaScript (the form is calculated on the server);
  * with JavaScript everything updates live while you type.
+ *
+ * Compatible with PHP 7.0 and up (no arrow functions, nullable or strict types).
  */
-
-declare(strict_types=1);
 
 date_default_timezone_set('Europe/Amsterdam');
 
 const DAY = 1440;
 
 /** "8:43", "08.43", "843" -> minutes since midnight, or null. */
-function parse_time(?string $s): ?int
+function parse_time($s)
 {
     $s = trim((string) $s);
     if (preg_match('/^(\d{1,2})[:.](\d{2})$/', $s, $m) || preg_match('/^(\d{1,2})(\d{2})$/', $s, $m)) {
@@ -28,7 +28,7 @@ function parse_time(?string $s): ?int
 }
 
 /** "37", "0:37", "1:05", "-15", "+1.30" -> minutes (may be negative), or null. */
-function parse_duration(?string $s): ?int
+function parse_duration($s)
 {
     $s = str_replace([' ', '−'], ['', '-'], trim((string) $s));
     if ($s === '') {
@@ -45,7 +45,7 @@ function parse_duration(?string $s): ?int
 }
 
 /** Minutes -> "16:36" (with a day marker when it crosses midnight). */
-function fmt_time(int $min): string
+function fmt_time($min)
 {
     $t = ($min % DAY + DAY) % DAY;
     $days = intdiv($min - $t, DAY);
@@ -57,14 +57,14 @@ function fmt_time(int $min): string
 }
 
 /** Minutes -> "1:05" (unsigned). */
-function fmt_duration(int $min): string
+function fmt_duration($min)
 {
     $min = abs($min);
     return sprintf('%d:%02d', intdiv($min, 60), $min % 60);
 }
 
 /** Minutes -> "1 h 5 min" / "37 min". */
-function human_duration(int $min): string
+function human_duration($min)
 {
     $min = abs($min);
     $h = intdiv($min, 60);
@@ -75,25 +75,30 @@ function human_duration(int $min): string
     return $h ? "$h h" : "$m min";
 }
 
-function e(string $s): string
+function e($s)
 {
-    return htmlspecialchars($s, ENT_QUOTES, 'UTF-8');
+    return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8');
 }
 
 // ---------------------------------------------------------------- input
 
-$q = static fn (string $k, string $default = ''): string =>
-    isset($_GET[$k]) && is_string($_GET[$k]) ? substr($_GET[$k], 0, 12) : $default;
+function q($k, $default = '')
+{
+    if (!isset($_GET[$k]) || !is_string($_GET[$k]) || trim($_GET[$k]) === '') {
+        return $default;
+    }
+    return (string) substr($_GET[$k], 0, 12);
+}
 
 $in = [
-    'start'    => $q('start'),
-    'workday'  => $q('workday', '8:00'),
-    'break'    => $q('break', '0:30'),
-    'overtime' => $q('overtime'),
-    's2'       => $q('s2'),
-    'e2'       => $q('e2'),
-    'b2'       => $q('b2', '0:30'),
-    'w2'       => $q('w2', '8:00'),
+    'start'    => q('start'),
+    'workday'  => q('workday', '8:00'),
+    'break'    => q('break', '0:30'),
+    'overtime' => q('overtime'),
+    's2'       => q('s2'),
+    'e2'       => q('e2'),
+    'b2'       => q('b2', '0:30'),
+    'w2'       => q('w2', '8:00'),
 ];
 
 // ------------------------------------------------ 1. When can I leave?
@@ -138,7 +143,7 @@ if ($in['s2'] !== '' || $in['e2'] !== '') {
     }
 }
 
-function overtime_text(int $ot): string
+function overtime_text($ot)
 {
     if ($ot > 0) {
         return human_duration($ot) . ' early';
@@ -149,7 +154,7 @@ function overtime_text(int $ot): string
     return 'Right on time';
 }
 
-function diff_text(int $v): string
+function diff_text($v)
 {
     if ($v > 0) {
         return '+' . fmt_duration($v) . ' overtime (' . human_duration($v) . ')';
@@ -173,8 +178,7 @@ function diff_text(int $v): string
   <link rel="icon" href="/favicon.ico" sizes="32x32">
   <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
   <link rel="preload" href="/fonts/sora-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="/css/style.css">
-  <link rel="stylesheet" href="/clockout/clockout.css">
+  <link rel="stylesheet" href="/clockout/css/style.css">
 </head>
 <body>
   <main class="tool">
